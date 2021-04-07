@@ -2,8 +2,7 @@
 
 C++ Word Counter using a Hash Table
 
-//TODO
-Need to implement own HashTable
+Bugs: Dashes still printed as spaces
 
 ## Needed Methods for Hash Table
 
