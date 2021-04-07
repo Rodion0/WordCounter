@@ -8,5 +8,7 @@ Need to implement own HashTable
 ## Needed Methods
 
 Insert Method
+
 Print Method
+
 Sort Method
