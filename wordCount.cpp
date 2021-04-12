@@ -22,10 +22,6 @@ string santizeWords(string input)
         {
             newInput += input[i];
         }
-        else
-        {
-            continue;
-        }
     }
     return newInput;
 }
@@ -39,8 +35,7 @@ int main(int argc, char const *argv[])
 
     while (file >> word)
     {
-        string goodWord;
-        goodWord = santizeWords(word);
+        string goodWord = santizeWords(word);
         words[goodWord]++;
     }
     file.close();
@@ -51,5 +46,6 @@ int main(int argc, char const *argv[])
         cout << itr->first << " " << itr->second << '\n';
     }
     cout << endl;
-    return 0;
+
+    // Make way to sort based on values
 }
