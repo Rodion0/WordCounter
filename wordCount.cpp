@@ -26,12 +26,24 @@ string santizeWords(string input)
     return newInput;
 }
 
+multimap<int, string> invert(map<string, int> m)
+{
+    multimap<int, string> inversions;
+    map<string, int>::iterator it;
+    for (it = m.begin(); it != m.end(); it++)
+    {
+        inversions.insert(make_pair(it->second, it->first));
+    }
+    return inversions;
+}
+
 int main(int argc, char const *argv[])
 {
     ifstream file("data.txt");
     string word;
 
     map<string, int> words;
+    multimap<int, string> occurances;
 
     while (file >> word)
     {
@@ -48,4 +60,11 @@ int main(int argc, char const *argv[])
     cout << endl;
 
     // Make way to sort based on values
+    occurances = invert(words);
+    multimap<int, string>::iterator itr2;
+    for (itr2 = occurances.end(); itr2 != occurances.begin(); itr2--)
+    {
+        cout << itr2->second << " " << itr2->first << '\n';
+    }
+    cout << endl;
 }
