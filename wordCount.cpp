@@ -48,14 +48,18 @@ int main(int argc, char const *argv[])
     while (file >> word)
     {
         string goodWord = santizeWords(word);
-        words[goodWord]++;
+        if (goodWord.length() != 0)
+        {
+            words[goodWord]++;
+        }
     }
+
     file.close();
 
     map<string, int>::iterator itr;
     for (itr = words.begin(); itr != words.end(); itr++)
     {
-        cout << itr->first << " " << itr->second << '\n';
+        cout << itr->first << " " << itr->second << endl;
     }
     cout << endl;
 
@@ -64,7 +68,9 @@ int main(int argc, char const *argv[])
     multimap<int, string>::iterator itr2;
     for (itr2 = occurances.end(); itr2 != occurances.begin(); itr2--)
     {
-        cout << itr2->second << " " << itr2->first << '\n';
+        if (itr2->second.length() != 0)
+        {
+            cout << itr2->second << " " << itr2->first << endl;
+        }
     }
-    cout << endl;
 }
