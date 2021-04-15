@@ -57,6 +57,7 @@ int main(int argc, char const *argv[])
     file.close();
 
     map<string, int>::iterator itr;
+    cout << "Word List: " << endl;
     for (itr = words.begin(); itr != words.end(); itr++)
     {
         cout << itr->first << " " << itr->second << endl;
@@ -66,6 +67,7 @@ int main(int argc, char const *argv[])
     // Make way to sort based on values
     occurances = invert(words);
     multimap<int, string>::iterator itr2;
+    cout << "Occurance List: " << endl;
     for (itr2 = occurances.end(); itr2 != occurances.begin(); itr2--)
     {
         if (itr2->second.length() != 0)
