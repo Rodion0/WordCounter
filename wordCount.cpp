@@ -13,6 +13,7 @@
 #include <string>
 using namespace std;
 
+//Will be used in final implmentation
 string santizeWords(string input)
 {
     string newInput;
@@ -26,6 +27,7 @@ string santizeWords(string input)
     return newInput;
 }
 
+// The Various Sort Functions will take the place of this
 multimap<int, string> invert(map<string, int> m)
 {
     multimap<int, string> inversions;
