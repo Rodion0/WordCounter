@@ -8,16 +8,18 @@
 //--------------------------------------------------------------------
 #include <iostream>
 #include <string>
+#include <vector>
 using namespace std;
 //This is the HashTable that I will develop seperately because I don't wanna break everything
 
+//TODO: Finish INsert and Hash Functions, Test,Integrate,Profit 
 class node
 {
 
 public:
     friend class hashtable;
+    node();
     node(string key, int value);
-
 private:
     string key;
     int value;
@@ -39,93 +41,161 @@ public:
     void insert(string key, int value);
     // Hashing function
     int hashFunction(string input);
-    // Sort based on Key
-    void sortKey(/* args */);
+    // Merge Sort based on Key
+    void sortKeys(vector<pair<string,int>> table, int lowIndex, int highIndex);
     //Helper Function for sortValue
-    void mergeKey(/* agrs */);
+    void mergeKeys(vector<pair<string,int>> table);
     //Sort Based on Value
-    void sortValue(/*args */);
+    void sortValue(vector<pair<string,int>> table, int lowIndex, int highIndex);
     //Helper Function for sortValue
-    void mergeValue(/* args */);
+    void mergeValue(vector<pair<string,int>> table);
     //Print based on Value(May just need to start at end and rhen just ouput second)
     void printByValue();
     // Print based on Key
     void printByKey();
+    vector <pair<string,int>> insertIntoVector(vector<node*> table);
+
 
 private:
-    vector<node> *table;
+    vector<node*> buckets;
 };
 
 hashtable::hashtable(/* args */)
 {
 }
 
-// 3 Possible Cases
-// Found Somethnig at HashValue and need to Traverse Bucket
-// Nothing at HashValue and new hashnode needs to be created
-// Put something in
 void hashtable::insert(string key, int value)
 {
     //Calcuate Key with Hash FUnction
     int hash_key = hashFunction(key);
     //Figure out where Key points to in table
-    node *input = &table[hash_key];
-    node *traveler;
+    node *element = buckets[hash_key];
+    node *traveler = new node(key,value);
+    
+    //Case for When Nothing Is at Hash Index
 
-    while (input != NULL && input->next != NULL)
-    {
-        //If there is an input at hashvalue then travel through its bucket
-    }
-    //If Input at hashvalue is empty then check to see if traveler has anything and if so then put it at the end of that
-    // Else Just put it at beginning
+    //Case for when Something is Hash Index 
+        //Get to end of list 
+        //Insert 
+        //Gotta resize the list because we're over Bucket Size 
 }
 
-void mergeBuckets(vector<node> table)
+void hashtable::mergeKeys(vector<pair<string,int>> table)
 {
     //Make Temporary Vectors to hold smaller and larger
+    int midpoint = table .size() /2; 
+    vector<pair<string,int>> smaller; 
+    vector<pair<string,int>> larger; 
     // Put correct poritons into each based on midpoint
-    // Walk through each vector concurrently
-    // Compare each element and if right is smaller then put into array else put the other in the array
+    for (int i = 0; i < table.size(); i++)
+    {
+        if(table[i].first <= table[midpoint].first){
+            smaller.push_back(table[i]);
+        }
+        else{
+            larger.push_back(table[i]);
+        }
+    }
+    table.clear();
+    //Concatenate both arrays into table
+    table.insert(table.begin(), smaller.begin(),smaller.end()); 
+    table.insert(table.end(), larger.begin(),larger.end());
 }
 
 //Use mergeSort to sort all keys(recursive)
-void sortBuckets(vector<node> table, int lowIndex, int highIndex)
+void hashtable::sortKeys(vector<pair<string,int>> table, int lowIndex, int highIndex)
 {
     if (table.size() < 1)
     {
         return;
     }
     int mid_point = (lowIndex + highIndex) / 2;
-    sortBuckets(table, lowIndex, mid_point);
-    sortBuckets(table, mid_point + 1, highIndex);
-    mergeBuckets(table);
+    sortKeys(table, lowIndex, mid_point);
+    sortKeys(table, mid_point + 1, highIndex);
+    mergeKeys(table);
 }
 //Helper Function for sortValue
-void mergeValue(/* args */)
+void hashtable::mergeValue(vector<pair<string,int>> table)
 {
+    //Make Temporary Vectors to hold smaller and larger
+    int midpoint = table .size() /2; 
+    vector<pair<string,int>> smaller; 
+    vector<pair<string,int>> larger; 
+    // Put correct poritons into each based on midpoint
+    for (int i = 0; i < table.size(); i++)
+    {
+        if(table[i].second <= table[midpoint].second){
+            smaller.push_back(table[i]);
+        }
+        else{
+            larger.push_back(table[i]);
+        }
+    }
+    table.clear();
+    //Concatenate both arrays into table
+    table.insert(table.begin(), smaller.begin(),smaller.end()); 
+    table.insert(table.end(), larger.begin(),larger.end());
 }
 
 //Sort Based on Value
-void sortValue(vector<node> table, int lowIndex, int highIndex)
+void hashtable::sortValue(vector<pair<string,int>> table, int lowIndex, int highIndex)
 {
     if (table.size() < 1)
     {
         return;
     }
     int mid_point = (lowIndex + highIndex) / 2;
-    sortBuckets(table, lowIndex, mid_point);
-    sortBuckets(table, mid_point + 1, highIndex);
-    mergeBuckets(table);
+    sortValue(table, lowIndex, mid_point);
+    sortValue(table, mid_point + 1, highIndex);
+    mergeValue(table);
+}
+
+//Insert into Vector of Pairs from HashMap
+vector <pair<string,int>> hashtable::insertIntoVector(vector<node*> table)
+{
+    vector <pair<string,int>> data;
+    //Travel the Hashmap
+    for(int i = 0;i < table.size(); i ++){
+        node* traveler = table[i];
+        if(table[i]->next == NULL){
+            data.push_back(make_pair(table[i]->key,table[i]->value));
+        }
+        else{
+            while(traveler != NULL){
+                data.push_back(make_pair(traveler->key,traveler->value));
+                traveler = traveler->next;
+            }
+        }
+    }
+    //Put all couples into new vector of pairs
+    //Return vector 
+    return data; 
 }
 
 // Print based on Key
-void printByKey()
+void hashtable::printByKey()
 {
+    //Insert all entries of hash map into vector of pairs 
+    vector <pair<string,int>> key_values = insertIntoVector(buckets);
+    //Run sortKey
+    sortKeys(key_values, 0, key_values.size()-1); 
+    //Iterate through new vector of pairs and output
+    for(int i = 0; i < key_values.size(); i++){
+        cout << key_values[i].first << "\t" << key_values[i].second << endl; 
+    } 
 }
 
-//Print based on Value(May need to start at end and just ouput second)
-void printByValue()
+//Print based on Value
+void hashtable::printByValue()
 {
+    ///Insert all entries of hash map into vector of pairs 
+    vector <pair<string,int>> key_values = insertIntoVector(buckets);
+    //Run sortKey
+    sortValue(key_values, 0, key_values.size()-1); 
+    //Iterate through new vector of pairs and output
+    for(int i = 0; i < key_values.size(); i++){
+        cout << key_values[i].second << "\t" << key_values[i].first << endl; 
+    } 
 }
 
 //Driver Code to Test
@@ -140,8 +210,6 @@ int main(int argc, char const *argv[])
 
     table1.printByKey();
     table1.printByValue();
-
-    table1.sortBuckets(table1->, table1);
 
     return 0;
 }
