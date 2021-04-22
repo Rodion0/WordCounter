@@ -12,7 +12,8 @@
 using namespace std;
 //This is the HashTable that I will develop seperately because I don't wanna break everything
 
-//TODO: Finish INsert and Hash Functions, Test,Integrate,Profit
+const int BUCKET_SIZE = 10;
+
 class node
 {
 public:
@@ -33,14 +34,22 @@ node::node(string key, int value)
     next = NULL;
 }
 
+node::node()
+{
+    key = "";
+    value = 0;
+    next = NULL;
+}
+
 class hashtable
 {
 public:
-    hashtable(/* args */);
     // Insert Method based on key, Seperate Chaining using basic Linked List
     void insert(string key, int value);
     // Hashing function
     int hashFunction(string input);
+    //Insert into vector to be used for sorting
+    vector<pair<string, int>> insertIntoVector(vector<node *> table);
     // Merge Sort based on Key
     void sortKeys(vector<pair<string, int>> table, int lowIndex, int highIndex);
     //Helper Function for sortValue
@@ -53,14 +62,30 @@ public:
     void printByValue();
     // Print based on Key
     void printByKey();
-    vector<pair<string, int>> insertIntoVector(vector<node *> table);
 
 private:
     vector<node *> buckets;
 };
 
-hashtable::hashtable(/* args */)
+int hashtable::hashFunction(string s)
 {
+    int hash_index = 0;
+    if (s.length() > 0)
+    {
+        for (int i = 0; i < s.length(); i++)
+        {
+            hash_index += int(char(s[i]));
+        }
+        if (hash_index % s.length() == 0)
+        {
+            hash_index = ((hash_index - s.length() + 1) % hash_index) % BUCKET_SIZE;
+        }
+        else
+        {
+            hash_index = ((hash_index - s.length()) % hash_index) % BUCKET_SIZE;
+        }
+    }
+    return hash_index;
 }
 
 void hashtable::insert(string key, int value)
@@ -72,11 +97,22 @@ void hashtable::insert(string key, int value)
     node *traveler = new node(key, value);
 
     //Case for When Nothing Is at Hash Index
-
+    if (element->key.empty())
+    {
+        buckets.push_back(traveler);
+    }
     //Case for when Something is Hash Index
-    //Get to end of list
-    //Insert
-    //Gotta resize the list because we're over Bucket Size
+    else
+    {
+        node *temp = element;
+        //Get to end of list
+        while (temp->next != NULL)
+        {
+            temp = temp->next;
+        }
+        //Insert
+        temp->next = traveler;
+    }
 }
 
 void hashtable::mergeKeys(vector<pair<string, int>> table)
@@ -161,6 +197,7 @@ vector<pair<string, int>> hashtable::insertIntoVector(vector<node *> table)
     for (int i = 0; i < table.size(); i++)
     {
         node *traveler = table[i];
+        //Put all couples into new vector of pairs
         if (table[i]->next == NULL)
         {
             data.push_back(make_pair(table[i]->key, table[i]->value));
@@ -174,7 +211,7 @@ vector<pair<string, int>> hashtable::insertIntoVector(vector<node *> table)
             }
         }
     }
-    //Put all couples into new vector of pairs
+
     //Return vector
     return data;
 }
