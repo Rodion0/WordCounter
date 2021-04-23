@@ -55,7 +55,7 @@ public:
     // Merge Sort based on Key
     void sortKeys(vector<pair<string, int>> &table, int lowIndex, int highIndex);
     //Helper Function for sortValue
-    void mergeKeys(vector<pair<string, int>> &table, int lowIndex, int highIndex);
+    void mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mid_point, int highIndex);
     //Sort Based on Value
     void sortValue(vector<pair<string, int>> &table, int lowIndex, int highIndex);
     //Helper Function for sortValue
@@ -131,28 +131,27 @@ void hashtable::insert(string key, int value)
     }
 }
 
-void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int highIndex)
+void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mid_point, int highIndex)
 {
     cout << "This is lowIndex: " << lowIndex << endl;
     cout << "This is highIndex: " << highIndex << endl;
-    int midpoint = (lowIndex + highIndex) / 2;
-    cout << "this is the midpoint " << midpoint << endl;
+    cout << "this is the midpoint " << mid_point << endl;
     int low = 0;
     int high = 0;
-    int both = 0;
-    vector<pair<string, int>> smaller;
-    vector<pair<string, int>> larger;
+    int both = lowIndex;
+    vector<pair<string, int>> smaller(mid_point - lowIndex + 1);
+    vector<pair<string, int>> larger(highIndex - mid_point - 1);
 
     cout << "No seg fault yet" << endl;
-    for (int i = 0; i <= midpoint; i++)
+    for (int i = 0; i < (mid_point - lowIndex + 1); i++)
     {
-        cout << "Heres table[i]: " << table[i].first << table[i].second << endl;
-        smaller.push_back(table[i]);
+        cout << "Heres table[i]s: " << table[i].first << table[i].second << endl;
+        smaller[i] = table[lowIndex + i];
     }
-    for (int i = midpoint + 1; i <= highIndex; i++)
+    for (int j = 0; j < (highIndex - mid_point); j++)
     {
-        cout << "Heres table[i]: " << table[i].first << table[i].second << endl;
-        larger.push_back(table[i]);
+        cout << "Heres table[i]l: " << table[j].first << table[j].second << endl;
+        larger[j] = table[mid_point + 1 + j];
     }
 
     for (auto i : smaller)
@@ -165,11 +164,12 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int hi
     }
 
     cout << "Just got done merging everything" << endl;
-    while (low <= midpoint && high <= highIndex)
+    while (low < (mid_point - lowIndex) && high < (highIndex - mid_point))
     {
         cout << "I have entered the loop" << endl;
-        if (smaller[low].first <= larger[high].first)
+        if (smaller[low].first.compare(larger[high].first) <= 0)
         {
+
             cout << "I have entered the low loop" << endl;
             table[both] = smaller[low];
             low++;
@@ -186,7 +186,7 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int hi
 
     cout << "This is low: " << low << endl;
     cout << "This is high: " << high << endl;
-    for (int i = low; i <= midpoint; i++)
+    for (int i = low; i <= mid_point; i++)
     {
         cout << i << endl;
         table[both] = smaller[i];
@@ -211,14 +211,14 @@ void hashtable::sortKeys(vector<pair<string, int>> &table, int lowIndex, int hig
         cout << "This is the midpoint from sort function: " << midpoint << endl;
         sortKeys(table, lowIndex, midpoint);
         sortKeys(table, midpoint + 1, highIndex);
-        mergeKeys(table, lowIndex, highIndex);
+        mergeKeys(table, lowIndex, midpoint, highIndex);
     }
 }
 
 //Helper Function for sortValue
 void hashtable::mergeValue(vector<pair<string, int>> &table)
 {
-    //Make Temporary Vectors to hold smaller and larger
+    /* //Make Temporary Vectors to hold smaller and larger
     int midpoint = table.size() / 2;
     vector<pair<string, int>> smaller;
     vector<pair<string, int>> larger;
@@ -246,20 +246,20 @@ void hashtable::mergeValue(vector<pair<string, int>> &table)
             iter2++;
         }
         iter3++;
-    }
+    } */
 }
 
 //Sort Based on Value
 void hashtable::sortValue(vector<pair<string, int>> &table, int lowIndex, int highIndex)
 {
-    if (lowIndex >= highIndex)
+    /* if (lowIndex >= highIndex)
     {
         return;
     }
     int mid_point = (lowIndex + highIndex) / 2;
     sortValue(table, lowIndex, mid_point);
     sortValue(table, mid_point + 1, highIndex);
-    mergeValue(table);
+    mergeValue(table); */
 }
 
 //Insert into Vector of Pairs from HashMap
