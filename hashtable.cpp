@@ -140,19 +140,7 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mi
     int high = 0;
     int both = lowIndex;
     vector<pair<string, int>> smaller(mid_point - lowIndex + 1);
-    vector<pair<string, int>> larger(highIndex - mid_point - 1);
-
-    cout << "No seg fault yet" << endl;
-    for (int i = 0; i < (mid_point - lowIndex + 1); i++)
-    {
-        cout << "Heres table[i]s: " << table[i].first << table[i].second << endl;
-        smaller[i] = table[lowIndex + i];
-    }
-    for (int j = 0; j < (highIndex - mid_point); j++)
-    {
-        cout << "Heres table[i]l: " << table[j].first << table[j].second << endl;
-        larger[j] = table[mid_point + 1 + j];
-    }
+    vector<pair<string, int>> larger(highIndex - mid_point);
 
     for (auto i : smaller)
     {
@@ -163,40 +151,82 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mi
         cout << "Here's larger " << i.first << " " << i.second << endl;
     }
 
-    cout << "Just got done merging everything" << endl;
-    while (low < (mid_point - lowIndex) && high < (highIndex - mid_point))
+    //cout << "No seg fault yet" << endl;
+    for (int i = 0; i < (mid_point - lowIndex + 1); i++)
     {
-        cout << "I have entered the loop" << endl;
+        //cout << "Heres table[i]s: " << table[i].first << table[i].second << endl;
+        smaller[i] = table[lowIndex + i];
+        cout << "I've ade it " << endl;
+    }
+    for (int j = 0; j < (highIndex - mid_point); j++)
+    {
+        cout << "Heres table[mid_point + 1 + j]l: " << table[mid_point + 1 + j].first << table[mid_point + 1 + j].second << endl;
+        larger[j] = table[mid_point + 1 + j];
+        cout << "Did I make it?" << endl;
+    }
+    cout << "Here's smaller ";
+    for (auto i : smaller)
+    {
+        cout << i.first << " " << i.second << " ";
+    }
+    cout << endl
+         << "Here's larger ";
+    for (auto i : larger)
+    {
+        cout << i.first << " " << i.second << " ";
+    }
+
+    cout << endl
+         << "Just got done seperating everything" << endl;
+
+    //TODO: Figure oout way to insert things into vectors without destorying what is at that place(insert?)
+
+    while (low < (mid_point - lowIndex + 1) && high < (highIndex - mid_point))
+    {
+        //cout << "I have entered the loop" << endl;
         if (smaller[low].first.compare(larger[high].first) <= 0)
         {
 
-            cout << "I have entered the low loop" << endl;
+            //cout << "I have entered the low loop" << endl;
             table[both] = smaller[low];
             low++;
+            cout << "This is table[both] in the smaller loop: " << table[both].first << " " << table[both].second << endl;
         }
         else
         {
-            cout << "I have entered the high loop" << endl;
+            //cout << "I have entered the high loop" << endl;
             table[both] = larger[high];
             high++;
+            cout << "This is table[both] in the higher loop: " << table[both].first << " " << table[both].second << endl;
         }
         both++;
     }
     cout << "Just got done putting things inside other things" << endl;
 
+    for (auto i : table)
+    {
+        cout << i.first << " " << i.second << endl;
+    }
+
     cout << "This is low: " << low << endl;
     cout << "This is high: " << high << endl;
     for (int i = low; i <= mid_point; i++)
     {
-        cout << i << endl;
+        cout << "i in low loop " << i << endl;
         table[both] = smaller[i];
         both++;
+        cout << "both " << both << endl;
     }
 
-    for (int i = high; i <= highIndex; i++)
+    cout << "This is larger's size() " << larger.size() << endl;
+
+    for (int i = high; i < highIndex; i++)
     {
+        cout << "i in high loop " << i << endl;
+        cout << "This is the table size " << table.size() << endl;
         table[both] = larger[i];
         both++;
+        cout << "both " << both << endl;
     }
     cout << "Dude why" << endl;
 }
