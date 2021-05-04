@@ -2,13 +2,15 @@
 //				CS315-001  Assignment 2
 //--------------------------------------------------------------------
 // Author: Justin Hamilton
-// Date: 3/16/21
+// Date: 5/4/21
 // Description: Given a text, return a word frequency count
-// Assistance: Class Notes
+// Assistance: We'll See
 //--------------------------------------------------------------------
+
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
 using namespace std;
 //This is the HashTable that I will develop seperately because I don't wanna break everything
 
@@ -20,12 +22,24 @@ public:
     friend class hashtable;
     node();
     node(string k, int v);
+    string getKey();
+    int getValue();
 
 private:
     string key;
     int value;
     node *next;
 };
+
+string node::getKey()
+{
+    return key;
+}
+
+int node::getValue()
+{
+    return value;
+}
 
 node::node(string k, int v)
 {
@@ -63,6 +77,8 @@ public:
     void printByValue();
     // Print based on Key
     void printByKey();
+    bool contains(string key);
+    node *getEntryAtBucket(string key);
 
 private:
     vector<node *> buckets;
@@ -102,31 +118,29 @@ void hashtable::insert(string key, int value)
 {
     //Calcuate Key with Hash FUnction
     int hash_key = hashFunction(key);
-    //cout << "I've made the hash_key: " << hash_key << endl;
     //Figure out where Key points to in table
     node *element = buckets[hash_key];
     node *traveler = new node(key, value);
-    //cout << traveler->key << " " << traveler->value << endl;
-
-    //cout << "Right before actual insert" << endl;
     //Case for When Nothing Is at Hash Index
     if (element->key.empty())
     {
-        //cout << "There isnt anything here" << endl;
         buckets[hash_key] = traveler;
     }
     //Case for when Something is Hash Index
     else
     {
-        //cout << "Ope" << endl;
         node *temp = element;
         //Get to end of list
         while (temp->next != NULL)
         {
+            if (temp->key == traveler->key)
+            {
+                traveler->value = temp->value + 1;
+                temp = traveler;
+                break;
+            }
             temp = temp->next;
         }
-        //Insert
-        temp->next = traveler;
     }
 }
 
@@ -257,19 +271,15 @@ vector<pair<string, int>> hashtable::insertIntoVector(vector<node *> table)
         if (table[i]->key.length() > 0)
         {
             node *traveler = table[i];
-            //cout << table[i]->key << " " << table[i]->value << endl;
             //Put all couples into new vector of pairs
             if (table[i]->next == NULL)
             {
-                //cout << " I am in main loop" << endl;
                 data.push_back(make_pair(table[i]->key, table[i]->value));
             }
             else
             {
-                //cout << "I gotta travel" << endl;
                 while (traveler != NULL)
                 {
-                    //cout << traveler->key << " " << traveler->value << " ";
                     data.push_back(make_pair(traveler->key, traveler->value));
                     traveler = traveler->next;
                 }
@@ -277,10 +287,6 @@ vector<pair<string, int>> hashtable::insertIntoVector(vector<node *> table)
         }
     }
 
-    /* for (auto i : data)
-    {
-        cout << i.first << " " << i.second << endl;
-    } */
     //Return vector
     return data;
 }
@@ -290,11 +296,8 @@ void hashtable::printByKey()
 {
     //Insert all entries of hash map into vector of pairs
     vector<pair<string, int>> key_values = insertIntoVector(buckets);
-    //cout << "I've inserted all the key/value pairs into a vector" << endl;
     //Run sortKey
-    //cout << "Heres the size: " << key_values.size() - 1 << endl;
     sortKeys(key_values, 0, key_values.size() - 1);
-    //cout << "I've sorted all the pairs" << endl;
     //Iterate through new vector of pairs and output
     for (int i = 0; i < int(key_values.size()); i++)
     {
@@ -311,37 +314,78 @@ void hashtable::printByValue()
     //Run sortKey
     sortValue(key_values, 0, key_values.size() - 1);
     //Iterate through new vector of pairs and output
-    //cout << "My Guy please" << endl;
     for (int i = 0; i < int(key_values.size()); i++)
     {
         cout << "First Value: " << key_values[i].second << "\t"
              << "Second Value: " << key_values[i].first << endl;
     }
 }
+/* bool hashtable::contains(string key)
+{
+    int hash_key = hashFunction(key);
+    node *element = buckets[hash_key];
 
-//Driver Code to Test
+    node *temp = element;
+    while (temp->next != NULL)
+    {
+        if (temp->getKey() == key)
+        {
+            return true;
+        }
+        temp = temp->next;
+    }
+    return false;
+}
+
+node *hashtable::getEntryAtBucket(string key)
+{
+    int hash_key = hashFunction(key);
+    node *element = buckets[hash_key];
+
+    node *temp = element;
+    while (temp->next != NULL)
+    {
+        if (temp->getKey() == key)
+        {
+            return temp;
+        }
+        temp = temp->next;
+    }
+    return NULL;
+} */
+
+string santizeWords(string input)
+{
+    string newInput;
+    for (int i = 0; i < input.size(); i++)
+    {
+        if (isalpha(input[i]))
+        {
+            newInput += input[i];
+        }
+    }
+    return newInput;
+}
+
 int main(int argc, char const *argv[])
 {
-    hashtable table1;
-    //cout << "I have made table 1" << endl;
+    ifstream file("data.txt");
+    string word;
 
-    table1.insert("b", 1);
-    table1.insert("c", 2);
-    table1.insert("a", 3);
-    table1.insert("f", 4);
-    table1.insert("e", 5);
-    table1.insert("o", 6);
-    table1.insert("i", 7);
-    table1.insert("l", 8);
-    table1.insert("k", 9);
-    table1.insert("j", 10);
-    //cout << "I have inserted everything" << endl;
+    hashtable table;
 
-    table1.printByKey();
-    //cout << "Finished printing the Keys" << endl
+    while (file >> word)
+    {
+        string goodWord = santizeWords(word);
+        if (goodWord.length() != 0)
+        {
+            table.insert(goodWord, 1);
+        }
+    }
+
+    file.close();
+
+    table.printByKey();
     cout << endl;
-    table1.printByValue();
-    //cout << "I've printed everthing" << endl;
-
-    return 0;
+    table.printByValue();
 }
