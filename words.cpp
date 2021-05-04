@@ -4,24 +4,24 @@
 // Author: Justin Hamilton
 // Date: 5/4/21
 // Description: Given a text, return a word frequency count
-// Assistance: We'll See
+// Assistance: Tau Beta Pi tutoring, Notes
 //--------------------------------------------------------------------
 
 #include <iostream>
 #include <string>
 #include <vector>
-#include <fstream>
+#include <sstream>
 using namespace std;
-//This is the HashTable that I will develop seperately because I don't wanna break everything
 
 const int BUCKET_SIZE = 10;
 
+//Node Class
 class node
 {
 public:
     friend class hashtable;
     node();
-    node(string k, int v);
+    node(string _key, int _value);
     string getKey();
     int getValue();
 
@@ -31,23 +31,44 @@ private:
     node *next;
 };
 
+//--------------------------------------------------------------------------------------
+//                                      getKey()
+//--------------------------------------------------------------------------------------
+// Returns: key of node
+//--------------------------------------------------------------------------------------
 string node::getKey()
 {
     return key;
 }
 
+//--------------------------------------------------------------------------------------
+//                                      getRoot()
+//--------------------------------------------------------------------------------------
+// Returns: value of node
+//--------------------------------------------------------------------------------------
 int node::getValue()
 {
     return value;
 }
 
-node::node(string k, int v)
+//--------------------------------------------------------------------------------------
+//                                      node()
+//--------------------------------------------------------------------------------------
+// Given: key, value
+// Sets respective trait to given value
+//--------------------------------------------------------------------------------------
+node::node(string _key, int _value)
 {
-    key = k;
-    value = v;
+    key = _key;
+    value = _value;
     next = NULL;
 }
 
+//--------------------------------------------------------------------------------------
+//                                      node()
+//--------------------------------------------------------------------------------------
+// Default Constructor
+//--------------------------------------------------------------------------------------
 node::node()
 {
     key = "";
@@ -55,6 +76,7 @@ node::node()
     next = NULL;
 }
 
+//HashTable class
 class hashtable
 {
 public:
@@ -77,13 +99,17 @@ public:
     void printByValue();
     // Print based on Key
     void printByKey();
-    bool contains(string key);
-    node *getEntryAtBucket(string key);
 
 private:
     vector<node *> buckets;
 };
 
+//--------------------------------------------------------------------------------------
+//                                      hashtable()
+//--------------------------------------------------------------------------------------
+// Default Constructor
+// Fills up buckets with empty nodes
+//--------------------------------------------------------------------------------------
 hashtable::hashtable()
 {
     for (int i = 0; i < BUCKET_SIZE; i++)
@@ -92,6 +118,12 @@ hashtable::hashtable()
     }
 }
 
+//--------------------------------------------------------------------------------------
+//                                      hashFunction()
+//--------------------------------------------------------------------------------------
+// Given: string
+// Calculates hash value of given string
+//--------------------------------------------------------------------------------------
 int hashtable::hashFunction(string s)
 {
     int hash_index = 0;
@@ -101,7 +133,6 @@ int hashtable::hashFunction(string s)
         {
             hash_index += int(char(s[i]));
         }
-        //cout << "Hash Index inside of Hash Loop: " << hash_index << endl;
         if (hash_index % s.length() == 0)
         {
             hash_index = (hash_index - s.length() + 1) % BUCKET_SIZE;
@@ -114,11 +145,16 @@ int hashtable::hashFunction(string s)
     return hash_index;
 }
 
+//--------------------------------------------------------------------------------------
+//                                      insert()
+//--------------------------------------------------------------------------------------
+// Given: some string, some int
+// Inserts a node with given string and int into hashtable
+//--------------------------------------------------------------------------------------
 void hashtable::insert(string key, int value)
 {
-    //Calcuate Key with Hash FUnction
+    //Calcuate Key with Hash Function
     int hash_key = hashFunction(key);
-    //Figure out where Key points to in table
     node *element = buckets[hash_key];
     node *traveler = new node(key, value);
     //Case for When Nothing Is at Hash Index
@@ -133,17 +169,18 @@ void hashtable::insert(string key, int value)
         //Get to end of list
         while (temp->next != NULL)
         {
-            if (temp->key == traveler->key)
-            {
-                traveler->value = temp->value + 1;
-                temp = traveler;
-                break;
-            }
             temp = temp->next;
         }
+        temp->next = traveler;
     }
 }
 
+//--------------------------------------------------------------------------------------
+//                                      mergeKeys()
+//--------------------------------------------------------------------------------------
+// Given: vector of pairs of strings and int, some int, some int, some int
+// Merges the elements in the vector based on keys
+//--------------------------------------------------------------------------------------
 void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mid_point, int highIndex)
 {
     int low = 0;
@@ -152,6 +189,7 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mi
     vector<pair<string, int>> smaller(mid_point - lowIndex + 1);
     vector<pair<string, int>> larger(highIndex - mid_point);
 
+    //Insert into respective vector based on midpoint
     for (int i = 0; i < (mid_point - lowIndex + 1); i++)
     {
         smaller[i] = table[lowIndex + i];
@@ -161,8 +199,10 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mi
         larger[j] = table[mid_point + 1 + j];
     }
 
+    //While walking concurrently through each vector, compare elements from both lists
     while (low < (mid_point - lowIndex + 1) && high < (highIndex - mid_point))
     {
+        //Insert correcting ordering into table
         if (smaller[low].first.compare(larger[high].first) <= 0)
         {
 
@@ -177,6 +217,7 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mi
         both++;
     }
 
+    //Put anything that is left in the vectors back into table
     for (int i = low; i < smaller.size(); i++)
     {
         table[both] = smaller[i];
@@ -190,7 +231,12 @@ void hashtable::mergeKeys(vector<pair<string, int>> &table, int lowIndex, int mi
     }
 }
 
-//Use mergeSort to sort all keys(recursive)
+//--------------------------------------------------------------------------------------
+//                                      sortKeys()
+//--------------------------------------------------------------------------------------
+// Given: vector of pair of strings and ints, some int, some int
+// Sorts table based on keys using merge sort
+//--------------------------------------------------------------------------------------
 void hashtable::sortKeys(vector<pair<string, int>> &table, int lowIndex, int highIndex)
 {
     if (lowIndex < highIndex)
@@ -202,7 +248,12 @@ void hashtable::sortKeys(vector<pair<string, int>> &table, int lowIndex, int hig
     }
 }
 
-//Helper Function for sortValue
+//--------------------------------------------------------------------------------------
+//                                      mergeValue()
+//--------------------------------------------------------------------------------------
+// Given: vector of pairs of strings and int, some int, some int, some int
+// Merges the elements in the vector based on values
+//--------------------------------------------------------------------------------------
 void hashtable::mergeValue(vector<pair<string, int>> &table, int lowIndex, int mid_point, int highIndex)
 {
     int low = 0;
@@ -211,6 +262,7 @@ void hashtable::mergeValue(vector<pair<string, int>> &table, int lowIndex, int m
     vector<pair<string, int>> smaller(mid_point - lowIndex + 1);
     vector<pair<string, int>> larger(highIndex - mid_point);
 
+    //Insert into respective vector based on midpoint
     for (int i = 0; i < (mid_point - lowIndex + 1); i++)
     {
         smaller[i] = table[lowIndex + i];
@@ -219,7 +271,7 @@ void hashtable::mergeValue(vector<pair<string, int>> &table, int lowIndex, int m
     {
         larger[j] = table[mid_point + 1 + j];
     }
-
+    //While walking concurrently through each vector, compare elements from both lists
     while (low < (mid_point - lowIndex + 1) && high < (highIndex - mid_point))
     {
         if (smaller[low].second <= larger[high].second)
@@ -235,7 +287,7 @@ void hashtable::mergeValue(vector<pair<string, int>> &table, int lowIndex, int m
         }
         both++;
     }
-
+    //Put anything that is left in the vectors back into table
     for (int i = low; i < smaller.size(); i++)
     {
         table[both] = smaller[i];
@@ -249,7 +301,12 @@ void hashtable::mergeValue(vector<pair<string, int>> &table, int lowIndex, int m
     }
 }
 
-//Sort Based on Value
+//--------------------------------------------------------------------------------------
+//                                      sortValue()
+//--------------------------------------------------------------------------------------
+// Given: vector of pair of strings and ints, some int, some int
+// Sorts table based on values using merge sort
+//--------------------------------------------------------------------------------------
 void hashtable::sortValue(vector<pair<string, int>> &table, int lowIndex, int highIndex)
 {
     if (lowIndex < highIndex)
@@ -261,7 +318,13 @@ void hashtable::sortValue(vector<pair<string, int>> &table, int lowIndex, int hi
     }
 }
 
-//Insert into Vector of Pairs from HashMap
+//--------------------------------------------------------------------------------------
+//                                      insertIntoVector()
+//--------------------------------------------------------------------------------------
+// Given: vector of nodes
+// Returns: vector of pairs of strings and ints
+// Inserts all nodes into vector of pairs to be used for sorting
+//--------------------------------------------------------------------------------------
 vector<pair<string, int>> hashtable::insertIntoVector(vector<node *> table)
 {
     vector<pair<string, int>> data;
@@ -274,6 +337,7 @@ vector<pair<string, int>> hashtable::insertIntoVector(vector<node *> table)
             //Put all couples into new vector of pairs
             if (table[i]->next == NULL)
             {
+
                 data.push_back(make_pair(table[i]->key, table[i]->value));
             }
             else
@@ -287,11 +351,41 @@ vector<pair<string, int>> hashtable::insertIntoVector(vector<node *> table)
         }
     }
 
+    //Set duplicates to null values
+    for (int i = 0; i < data.size(); i++)
+    {
+        for (int j = i + 1; j < data.size(); j++)
+        {
+            if (data[i].second > 0)
+            {
+                if (data[i].first == data[j].first)
+                {
+                    data[i].second++;
+                    data[j] = make_pair("", 0);
+                }
+            }
+        }
+    }
+
+    //Erase duplicates
+    for (int i = 0; i < data.size(); i++)
+    {
+        if (data[i].second == 0)
+        {
+            data.erase(data.begin() + i);
+            i--;
+        }
+    }
+
     //Return vector
     return data;
 }
 
-// Print based on Key
+//--------------------------------------------------------------------------------------
+//                                      printByKey()
+//--------------------------------------------------------------------------------------
+// Prints data in order based on key
+//--------------------------------------------------------------------------------------
 void hashtable::printByKey()
 {
     //Insert all entries of hash map into vector of pairs
@@ -301,12 +395,16 @@ void hashtable::printByKey()
     //Iterate through new vector of pairs and output
     for (int i = 0; i < int(key_values.size()); i++)
     {
-        cout << "First Value: " << key_values[i].first << "\t"
-             << "Second Value: " << key_values[i].second << endl;
+        cout << key_values[i].first << " "
+             << key_values[i].second << endl;
     }
 }
 
-//Print based on Value
+//--------------------------------------------------------------------------------------
+//                                      printByValue()
+//--------------------------------------------------------------------------------------
+// Prints data in reverse order(largest  to smallest) based on value
+//--------------------------------------------------------------------------------------
 void hashtable::printByValue()
 {
     ///Insert all entries of hash map into vector of pairs
@@ -314,46 +412,23 @@ void hashtable::printByValue()
     //Run sortKey
     sortValue(key_values, 0, key_values.size() - 1);
     //Iterate through new vector of pairs and output
-    for (int i = 0; i < int(key_values.size()); i++)
+    for (int i = int(key_values.size()); i > 0; i--)
     {
-        cout << "First Value: " << key_values[i].second << "\t"
-             << "Second Value: " << key_values[i].first << endl;
+        if (key_values[i].second > 0)
+        {
+            cout << key_values[i].second << " "
+                 << key_values[i].first << endl;
+        }
     }
 }
-/* bool hashtable::contains(string key)
-{
-    int hash_key = hashFunction(key);
-    node *element = buckets[hash_key];
 
-    node *temp = element;
-    while (temp->next != NULL)
-    {
-        if (temp->getKey() == key)
-        {
-            return true;
-        }
-        temp = temp->next;
-    }
-    return false;
-}
-
-node *hashtable::getEntryAtBucket(string key)
-{
-    int hash_key = hashFunction(key);
-    node *element = buckets[hash_key];
-
-    node *temp = element;
-    while (temp->next != NULL)
-    {
-        if (temp->getKey() == key)
-        {
-            return temp;
-        }
-        temp = temp->next;
-    }
-    return NULL;
-} */
-
+//--------------------------------------------------------------------------------------
+//                                      sanitizeWords()
+//--------------------------------------------------------------------------------------
+// Given: some string
+// Returns: string
+// Gets rid of any punction or non-alphabetic characters from word
+//--------------------------------------------------------------------------------------
 string santizeWords(string input)
 {
     string newInput;
@@ -367,24 +442,33 @@ string santizeWords(string input)
     return newInput;
 }
 
+//--------------------------------------------------------------------------------------
+//                                      main()
+//--------------------------------------------------------------------------------------
 int main(int argc, char const *argv[])
 {
-    ifstream file("data.txt");
     string word;
-
+    //New Table
     hashtable table;
-
-    while (file >> word)
+    while (cin)
     {
-        string goodWord = santizeWords(word);
-        if (goodWord.length() != 0)
+        string input;
+        //Take in input
+        getline(cin, input);
+        stringstream ss(input);
+        while (ss >> word)
         {
-            table.insert(goodWord, 1);
+            //Isolate only word
+            string goodWord = santizeWords(word);
+            if (goodWord.length() != 0)
+            {
+                //Insert word into table
+                table.insert(goodWord, 1);
+            }
         }
     }
 
-    file.close();
-
+    //Printing what is in table
     table.printByKey();
     cout << endl;
     table.printByValue();

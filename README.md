@@ -2,10 +2,12 @@
 
 C++ Word Counter using a Hash Table
 
-## Needed Methods for Hash Table
+# Files in this Repository
 
-Insert Method
+hashtable.cpp - semi-working hashtable implementation 
 
-Print Method
+wordCount.cpp - word counter using STL 
 
-Sort Method (Use Merge Sort)
+words.cpp - word counter with propritary hashtable 
+
+data.txt,comm.txt - test documents 
